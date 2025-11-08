@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
-import { getAllArticles, deleteArticle } from '@/lib/firebase/articles-admin';
+import { deleteArticle } from '@/lib/firebase/articles-admin';
 import { Article } from '@/types/article';
 
 export default function ArticlesPage() {
@@ -19,11 +19,26 @@ export default function ArticlesPage() {
   const fetchArticles = async () => {
     try {
       setLoading(true);
-      console.log('[ArticlesPage] Starting to fetch articles...');
-      const data = await getAllArticles();
+      console.log('[ArticlesPage] Fetching articles from API...');
+      
+      // Admin SDK経由でサーバーサイドから取得（API Route）
+      const response = await fetch('/api/admin/articles');
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      const data: Article[] = await response.json();
       console.log('[ArticlesPage] Received articles:', data);
+      
+      // 日付をDateオブジェクトに変換
+      const articlesWithDates = data.map(article => ({
+        ...article,
+        publishedAt: new Date(article.publishedAt),
+        updatedAt: new Date(article.updatedAt),
+      }));
+      
       // クライアント側で更新日時順にソート（新しい順）
-      const sortedData = data.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      const sortedData = articlesWithDates.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
       console.log('[ArticlesPage] Sorted articles:', sortedData);
       setArticles(sortedData);
     } catch (error) {
