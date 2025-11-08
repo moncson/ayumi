@@ -6,6 +6,7 @@ import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { deleteTag } from '@/lib/firebase/tags-admin';
 import { Tag } from '@/types/article';
+import { apiGet } from '@/lib/api-client';
 
 export default function TagsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
@@ -18,11 +19,7 @@ export default function TagsPage() {
   const fetchTags = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/tags');
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await apiGet<Tag[]>('/api/admin/tags');
       setTags(data);
     } catch (error) {
       console.error('Error fetching tags:', error);

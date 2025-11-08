@@ -6,6 +6,7 @@ import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { deleteCategory } from '@/lib/firebase/categories-admin';
 import { Category } from '@/types/article';
+import { apiGet } from '@/lib/api-client';
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -18,11 +19,7 @@ export default function CategoriesPage() {
   const fetchCategories = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/admin/categories');
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await apiGet<Category[]>('/api/admin/categories');
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);

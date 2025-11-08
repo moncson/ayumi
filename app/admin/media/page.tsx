@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Image from 'next/image';
+import { apiGet, apiPostFormData } from '@/lib/api-client';
 
 interface MediaFile {
   id: string;
@@ -33,11 +34,8 @@ export default function MediaPage() {
 
   const fetchMedia = async () => {
     try {
-      const response = await fetch('/api/admin/media');
-      if (response.ok) {
-        const data = await response.json();
-        setMediaFiles(data);
-      }
+      const data = await apiGet<MediaFile[]>('/api/admin/media');
+      setMediaFiles(data);
     } catch (error) {
       console.error('Error fetching media:', error);
     } finally {
@@ -57,14 +55,7 @@ export default function MediaPage() {
         const formData = new FormData();
         formData.append('file', file);
 
-        const response = await fetch('/api/admin/media/upload', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error(`Failed to upload ${file.name}`);
-        }
+        await apiPostFormData('/api/admin/media/upload', formData);
       }
 
       alert(`${files.length}個のファイルをアップロードしました`);

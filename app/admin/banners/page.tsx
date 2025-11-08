@@ -5,6 +5,7 @@ import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import Link from 'next/link';
 import Image from 'next/image';
+import { apiGet } from '@/lib/api-client';
 
 interface Banner {
   id: string;
@@ -25,11 +26,8 @@ export default function BannersPage() {
 
   const fetchBanners = async () => {
     try {
-      const response = await fetch('/api/admin/banners');
-      if (response.ok) {
-        const data = await response.json();
-        setBanners(data);
-      }
+      const data = await apiGet<Banner[]>('/api/admin/banners');
+      setBanners(data);
     } catch (error) {
       console.error('Error fetching banners:', error);
     } finally {
