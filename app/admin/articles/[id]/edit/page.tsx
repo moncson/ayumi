@@ -7,7 +7,6 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import FeaturedImageUpload from '@/components/admin/FeaturedImageUpload';
 import FloatingInput from '@/components/admin/FloatingInput';
-import { updateArticle } from '@/lib/firebase/articles-admin';
 import { Category, Tag, Article } from '@/types/article';
 
 export default function EditArticlePage({ params }: { params: { id: string } }) {
@@ -115,8 +114,22 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
     console.log('[handleSubmit] ローディング開始');
     
     try {
-      console.log('[handleSubmit] updateArticle関数を呼び出し中...', params.id);
-      const result = await updateArticle(params.id, formData);
+      console.log('[handleSubmit] API経由で更新中...', params.id);
+      const response = await fetch(`/api/admin/articles/${params.id}/update`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      console.log('[handleSubmit] APIレスポンス:', response.status);
+      
+      if (!response.ok) {
+        throw new Error(`更新に失敗しました: ${response.status}`);
+      }
+
+      const result = await response.json();
       console.log('[handleSubmit] 更新成功:', result);
       
       alert('記事を更新しました');
