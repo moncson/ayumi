@@ -1,5 +1,6 @@
 export interface Banner {
   id: string;
+  mediaId: string;           // 所属メディアID
   title: string;
   imageUrl: string;
   linkUrl?: string;

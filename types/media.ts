@@ -1,5 +1,6 @@
 export interface MediaFile {
   id: string;
+  mediaId: string;           // 所属メディアID
   name: string;
   originalName: string;
   url: string;

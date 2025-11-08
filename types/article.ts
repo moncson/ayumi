@@ -1,5 +1,6 @@
 export interface Article {
   id: string;
+  mediaId: string;           // 所属メディアID
   title: string;
   content: string;
   excerpt?: string;
@@ -30,6 +31,7 @@ export interface Article {
 
 export interface Category {
   id: string;
+  mediaId: string;           // 所属メディアID
   name: string;
   slug: string;
   description?: string;
@@ -39,6 +41,7 @@ export interface Category {
 
 export interface Tag {
   id: string;
+  mediaId: string;           // 所属メディアID
   name: string;
   slug: string;
   searchCount?: number;

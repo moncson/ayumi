@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useMediaTenant } from '@/contexts/MediaTenantContext';
 import { signOut } from '@/lib/firebase/auth';
 
 interface AdminLayoutProps {
@@ -14,6 +15,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { user } = useAuth();
+  const { currentTenant, tenants, setCurrentTenant } = useMediaTenant();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [homeIconError, setHomeIconError] = useState(false);
   const [logoError, setLogoError] = useState(false);
@@ -141,6 +143,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </svg>
       )
     },
+    { 
+      name: 'メディアテナント管理', 
+      href: '/admin/tenants', 
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+      )
+    },
   ];
 
   return (
@@ -215,9 +226,41 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           })}
         </nav>
 
-        {/* フッター（ログイン情報とログアウトボタン） */}
-        <div className="border-t p-4 space-y-2">
-          <div className="text-sm text-gray-600 truncate">{user?.email}</div>
+        {/* フッター（メディア切り替え・ログイン情報・ログアウトボタン） */}
+        <div className="border-t p-4 space-y-3">
+          {/* メディア切り替え */}
+          {tenants.length > 0 && (
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                メディア
+              </label>
+              <select
+                value={currentTenant?.id || ''}
+                onChange={(e) => {
+                  const tenant = tenants.find(t => t.id === e.target.value);
+                  if (tenant) setCurrentTenant(tenant);
+                }}
+                className="w-full px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+              >
+                {tenants.map((tenant) => (
+                  <option key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </option>
+                ))}
+              </select>
+              <Link
+                href="/admin/tenants"
+                className="block text-xs text-blue-600 hover:text-blue-800 mt-1"
+              >
+                メディア管理 →
+              </Link>
+            </div>
+          )}
+          
+          {/* ログイン情報 */}
+          <div className="text-sm text-gray-600 truncate pt-2 border-t">{user?.email}</div>
+          
+          {/* ログアウトボタン */}
           <button
             onClick={handleSignOut}
             className="w-full px-4 py-2 text-sm font-bold text-white bg-orange-500 rounded-full hover:bg-orange-600 transition-colors"
