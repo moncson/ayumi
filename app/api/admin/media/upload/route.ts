@@ -12,14 +12,20 @@ export async function POST(request: Request) {
     
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
+    const mediaId = formData.get('mediaId') as string | null;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
+    if (!mediaId) {
+      return NextResponse.json({ error: 'Media ID is required' }, { status: 400 });
+    }
+
     console.log('[API Media Upload] ファイル名:', file.name);
     console.log('[API Media Upload] MIMEタイプ:', file.type);
     console.log('[API Media Upload] サイズ:', file.size);
+    console.log('[API Media Upload] Media ID:', mediaId);
 
     const buffer = Buffer.from(await file.arrayBuffer());
     const bucket = adminStorage.bucket();
@@ -103,6 +109,7 @@ export async function POST(request: Request) {
 
     // Firestoreにメタデータを保存
     const mediaData = {
+      mediaId,
       name: `${timestamp}_${sanitizedName}`,
       originalName: file.name,
       url: uploadUrl,

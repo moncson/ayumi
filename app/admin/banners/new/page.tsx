@@ -6,9 +6,12 @@ import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import FloatingInput from '@/components/admin/FloatingInput';
 import FeaturedImageUpload from '@/components/admin/FeaturedImageUpload';
+import { useMediaTenant } from '@/contexts/MediaTenantContext';
+import { apiPost } from '@/lib/api-client';
 
 export default function NewBannerPage() {
   const router = useRouter();
+  const { currentTenant } = useMediaTenant();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -25,23 +28,21 @@ export default function NewBannerPage() {
       return;
     }
 
+    if (!currentTenant) {
+      alert('メディアが選択されていません');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const response = await fetch('/api/admin/banners', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
+      await apiPost('/api/admin/banners', {
+        ...formData,
+        mediaId: currentTenant.id,
       });
 
-      if (response.ok) {
-        alert('バナーを作成しました');
-        router.push('/admin/banners');
-      } else {
-        throw new Error('作成に失敗しました');
-      }
+      alert('バナーを作成しました');
+      router.push('/admin/banners');
     } catch (error) {
       console.error('Error creating banner:', error);
       alert('バナーの作成に失敗しました');

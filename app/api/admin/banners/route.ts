@@ -1,15 +1,25 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { adminDb } from '@/lib/firebase/admin';
 import { FieldValue } from 'firebase-admin/firestore';
 
 export const dynamic = 'force-dynamic';
 
 // バナー一覧取得
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    console.log('[API Banners] バナー一覧取得開始');
+    // リクエストヘッダーからmediaIdを取得
+    const mediaId = request.headers.get('x-media-id');
     
-    const snapshot = await adminDb.collection('banners').orderBy('order').get();
+    console.log('[API Banners] バナー一覧取得開始', { mediaId });
+    
+    let query: FirebaseFirestore.Query = adminDb.collection('banners');
+    
+    // mediaIdが指定されている場合はフィルタリング
+    if (mediaId) {
+      query = query.where('mediaId', '==', mediaId);
+    }
+    
+    const snapshot = await query.orderBy('order').get();
     
     const banners = snapshot.docs.map((doc) => {
       const data = doc.data();
@@ -36,17 +46,26 @@ export async function POST(request: Request) {
     console.log('[API Banners] バナー作成開始');
     
     const body = await request.json();
-    const { title, imageUrl, linkUrl, isActive } = body;
+    const { title, imageUrl, linkUrl, isActive, mediaId } = body;
 
     if (!title || !imageUrl) {
       return NextResponse.json({ error: 'Title and image URL are required' }, { status: 400 });
     }
 
-    // 現在の最大order値を取得
-    const snapshot = await adminDb.collection('banners').orderBy('order', 'desc').limit(1).get();
+    if (!mediaId) {
+      return NextResponse.json({ error: 'Media ID is required' }, { status: 400 });
+    }
+
+    // 現在の最大order値を取得（同じmediaId内で）
+    const snapshot = await adminDb.collection('banners')
+      .where('mediaId', '==', mediaId)
+      .orderBy('order', 'desc')
+      .limit(1)
+      .get();
     const maxOrder = snapshot.empty ? 0 : (snapshot.docs[0].data().order || 0);
 
     const bannerData = {
+      mediaId,
       title,
       imageUrl,
       linkUrl: linkUrl || '',

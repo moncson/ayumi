@@ -6,6 +6,7 @@ import AuthGuard from '@/components/admin/AuthGuard';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { deleteArticle } from '@/lib/firebase/articles-admin';
 import { Article } from '@/types/article';
+import { apiGet } from '@/lib/api-client';
 
 export default function ArticlesPage() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -21,13 +22,8 @@ export default function ArticlesPage() {
       setLoading(true);
       console.log('[ArticlesPage] Fetching articles from API...');
       
-      // Admin SDK経由でサーバーサイドから取得（API Route）
-      const response = await fetch('/api/admin/articles');
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
-      const data: Article[] = await response.json();
+      // API Client経由で取得（mediaIdが自動的にヘッダーに追加される）
+      const data: Article[] = await apiGet('/api/admin/articles');
       console.log('[ArticlesPage] Received articles:', data);
       
       // 日付をDateオブジェクトに変換

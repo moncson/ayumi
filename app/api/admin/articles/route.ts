@@ -6,10 +6,20 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
   try {
-    console.log('[API /admin/articles] Fetching all articles...');
+    // リクエストヘッダーからmediaIdを取得
+    const mediaId = request.headers.get('x-media-id');
     
-    const articlesRef = adminDb.collection('articles');
-    const snapshot = await articlesRef.get();
+    console.log('[API /admin/articles] Fetching articles...', { mediaId });
+    
+    let articlesRef = adminDb.collection('articles');
+    
+    // mediaIdが指定されている場合はフィルタリング
+    let query: FirebaseFirestore.Query = articlesRef;
+    if (mediaId) {
+      query = articlesRef.where('mediaId', '==', mediaId);
+    }
+    
+    const snapshot = await query.get();
 
     console.log(`[API /admin/articles] Found ${snapshot.size} articles`);
 

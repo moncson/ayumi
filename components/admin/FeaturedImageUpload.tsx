@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { apiPostFormData } from '@/lib/api-client';
 
 interface FeaturedImageUploadProps {
   value?: string;
@@ -32,7 +33,7 @@ export default function FeaturedImageUpload({ value, onChange }: FeaturedImageUp
     };
     reader.readAsDataURL(file);
 
-    // アップロード（API経由）
+    // アップロード（API経由、mediaIdが自動的に追加される）
     setUploading(true);
     console.log('[FeaturedImageUpload] API経由でアップロード開始');
     
@@ -41,18 +42,8 @@ export default function FeaturedImageUpload({ value, onChange }: FeaturedImageUp
       formData.append('file', file);
       
       console.log('[FeaturedImageUpload] APIリクエスト送信中...');
-      const response = await fetch('/api/admin/upload-image', {
-        method: 'POST',
-        body: formData,
-      });
-
-      console.log('[FeaturedImageUpload] APIレスポンス:', response.status);
-
-      if (!response.ok) {
-        throw new Error(`アップロード失敗: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await apiPostFormData<{ url: string }>('/api/admin/upload-image', formData);
+      
       console.log('[FeaturedImageUpload] アップロード成功、URL:', data.url);
       
       onChange(data.url);
