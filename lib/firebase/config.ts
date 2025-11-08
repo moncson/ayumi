@@ -15,23 +15,43 @@ const firebaseConfig = {
 
 // 環境変数はfallback値で設定済み（警告不要）
 
-// Firebase初期化（シングルトン）
+// Firebase初期化（遅延初期化でクライアント側のみ）
 let app: FirebaseApp | undefined;
 let db: Firestore | undefined;
 let storage: FirebaseStorage | undefined;
 let auth: Auth | undefined;
 
-if (typeof window !== 'undefined') {
-  if (!getApps().length) {
-    app = initializeApp(firebaseConfig);
-  } else {
-    app = getApps()[0];
+// 初期化関数（クライアント側で呼ばれた時に初期化）
+function initializeFirebase() {
+  if (typeof window === 'undefined') {
+    return; // サーバー側では何もしない
+  }
+
+  if (!app) {
+    if (!getApps().length) {
+      app = initializeApp(firebaseConfig);
+    } else {
+      app = getApps()[0];
+    }
+  }
+
+  if (!db && app) {
+    db = getFirestore(app);
   }
   
-  db = getFirestore(app);
-  storage = getStorage(app);
-  auth = getAuth(app);
+  if (!storage && app) {
+    storage = getStorage(app);
+  }
+  
+  if (!auth && app) {
+    auth = getAuth(app);
+  }
 }
 
-export { app, db, storage, auth };
+// エクスポート時に初期化を試みる
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
+
+export { app, db, storage, auth, initializeFirebase };
 

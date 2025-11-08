@@ -13,8 +13,13 @@ import {
   Timestamp,
   serverTimestamp
 } from 'firebase/firestore';
-import { db } from './config';
+import { db, initializeFirebase } from './config';
 import { Article } from '@/types/article';
+
+// クライアント側でFirebaseを初期化
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
 
 /**
  * 記事の作成
