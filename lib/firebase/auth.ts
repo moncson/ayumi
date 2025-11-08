@@ -4,7 +4,12 @@ import {
   onAuthStateChanged,
   User
 } from 'firebase/auth';
-import { auth } from './config';
+import { auth, initializeFirebase } from './config';
+
+// クライアント側でFirebaseを初期化
+if (typeof window !== 'undefined') {
+  initializeFirebase();
+}
 
 /**
  * メールアドレスとパスワードでログイン
@@ -43,8 +48,13 @@ export const signOut = async () => {
  * 認証状態の変更を監視
  */
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
+  // 確実に初期化
+  initializeFirebase();
+  
   if (!auth) {
-    console.warn('Firebase Auth is not initialized');
+    console.error('Firebase Auth is still not initialized after calling initializeFirebase()');
+    // エラーの場合でもコールバックを呼んで loading を false にする
+    setTimeout(() => callback(null), 0);
     return () => {};
   }
   
