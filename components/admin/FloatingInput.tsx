@@ -35,11 +35,11 @@ export default function FloatingInput({
           className="w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 peer"
         />
         <label
-          className={`absolute left-4 transition-all pointer-events-none ${
+          className={`absolute left-2 transition-all pointer-events-none ${
             hasValue
               ? 'text-xs -top-2.5 bg-white px-2 text-gray-700'
-              : 'text-sm top-3 text-gray-500'
-          } peer-focus:text-xs peer-focus:-top-2.5 peer-focus:bg-white peer-focus:px-2 peer-focus:text-gray-700`}
+              : 'text-sm top-1/2 -translate-y-1/2 text-gray-500 px-2'
+          } peer-focus:text-xs peer-focus:-top-2.5 peer-focus:translate-y-0 peer-focus:bg-white peer-focus:px-2 peer-focus:text-gray-700`}
         >
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
@@ -56,14 +56,14 @@ export default function FloatingInput({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         required={required}
-        className="w-full px-4 pt-6 pb-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 peer"
+        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 peer"
       />
       <label
-        className={`absolute left-4 transition-all pointer-events-none ${
+        className={`absolute left-2 transition-all pointer-events-none ${
           hasValue
             ? 'text-xs -top-2.5 bg-white px-2 text-gray-700'
-            : 'text-sm top-3 text-gray-500'
-        } peer-focus:text-xs peer-focus:-top-2.5 peer-focus:bg-white peer-focus:px-2 peer-focus:text-gray-700`}
+            : 'text-sm top-1/2 -translate-y-1/2 text-gray-500 px-2'
+        } peer-focus:text-xs peer-focus:-top-2.5 peer-focus:translate-y-0 peer-focus:bg-white peer-focus:px-2 peer-focus:text-gray-700`}
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}

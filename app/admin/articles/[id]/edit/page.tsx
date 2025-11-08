@@ -151,6 +151,14 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
       <AdminLayout>
         <div className="max-w-4xl pb-32">
           <form id="article-edit-form" onSubmit={handleSubmit}>
+            {/* アイキャッチ画像（一番上） */}
+            <div className="mb-6">
+              <FeaturedImageUpload
+                value={formData.featuredImage}
+                onChange={(url) => setFormData({ ...formData, featuredImage: url })}
+              />
+            </div>
+
             {/* すべてのフィールドを1つのパネル内に表示 */}
             <div className="bg-white rounded-lg p-6 space-y-6">
               {/* タイトル */}
